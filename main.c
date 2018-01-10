@@ -1,5 +1,7 @@
 #include "msp.h"
-
+#include "ePaper200x200_driver.h"
+#include "HAL_MSP_EXP432P401R_ePaper200x200.h"
+#include "gpio.h"
 
 /**
  * main.c
@@ -21,7 +23,26 @@
  *
  *
  */
+
+uint8_t testImage[] = {0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF};
+
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
+ePaper200x200_Init(0); //0 being partial and 1 being full
+
+uint8_t count = 0;
+while(1){
+	ePaper200x200_ClearFrameMemory(WHITE);
+	ePaper200x200_DisplayFrame2();
+
+	for(count = 0; count <200; count++);
+//	ePaper200x200_Load_Image(50, 50, testImage);
+    ePaper200x200_ClearFrameMemory(BLACK);
+
+	ePaper200x200_DisplayFrame2();
+  //  for(count = 0; count < 2000; count++);
+
+}
+
 }

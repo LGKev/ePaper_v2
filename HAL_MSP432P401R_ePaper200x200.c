@@ -8,9 +8,10 @@
 
 
 
-#include <HAL_MSP_EXP432P401R_Crystalfontz128x128_ST7735.h>
+#include <HAL_MSP_EXP432P401R_ePaper200x200.h>
 #include "grlib.h"
 #include "driverlib.h"
+#include <gpio.h>
 #include <stdint.h>
 
 void HAL_LCD_PortInit(void)
@@ -25,6 +26,8 @@ void HAL_LCD_PortInit(void)
     GPIO_setAsOutputPin(LCD_DC_PORT, LCD_DC_PIN);
     // LCD_CS
     GPIO_setAsOutputPin(LCD_CS_PORT, LCD_CS_PIN);
+    //LCD_BUSY
+    GPIO_setAsInputPinWithPullDownResistor(LCD_BUSY_PORT, LCD_BUSY_PIN);
 }
 
 void HAL_LCD_SpiInit(void)

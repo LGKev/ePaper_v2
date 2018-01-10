@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "driverlib.h"
 #include "msp.h"
+#include "gpio.h"
 
 //*****************************************************************************
 //

@@ -11,16 +11,83 @@
 
 #include "grlib.h"
 #include "ePaper200x200_driver.h"
-#include <driverlib.h>
+#include "driverlib.h"
 #include "HAL_MSP_EXP432P401R_ePaper200x200.h"
 #include <stdint.h>
+#include "msp.h"
 
 
 uint8_t Lcd_Orientation;
 uint16_t Lcd_ScreenWidth, Lcd_ScreenHeigth;
 
-extern uint8_t  Partial_LUT[30];
-extern uint8_t  Full_LUT[30];
+//provided by vendor
+ const uint8_t lut_full_update[] = {
+                                          0x02, //C221 25C Full update waveform
+                                          0x02,
+                                          0x01,
+                                          0x11,
+                                          0x12,
+                                          0x12,
+                                          0x22,
+                                          0x22,
+                                          0x66,
+                                          0x69,
+                                          0x69,
+                                          0x59,
+                                          0x58,
+                                          0x99,
+                                          0x99,
+                                          0x88,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0xF8,
+                                          0xB4,
+                                          0x13,
+                                          0x51,
+                                          0x35,
+                                          0x51,
+                                          0x51,
+                                          0x19,
+                                          0x01,
+                                          0x00
+ };
+ //provided by vendor
+ const uint8_t lut_partial_update[] ={
+                                            0x10, //C221 25C partial update waveform
+                                            0x18,
+                                            0x18,
+                                            0x08,
+                                            0x18,
+                                            0x18,
+                                            0x08,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x13,
+                                            0x14,
+                                            0x44,
+                                            0x12,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00
+ };
+
+
 
 //*****************************************************************************
 /*
@@ -33,7 +100,7 @@ extern uint8_t  Full_LUT[30];
  *  Modifies the GPIO and configures SPI module.
  * */
 //*****************************************************************************
- void ePaper200x200_Init(uint8_t partial_full){
+ void ePaper200x200_Init( uint8_t partial_full){
      HAL_LCD_PortInit();
      HAL_LCD_SpiInit();
 
@@ -161,5 +228,57 @@ void ePaper200x200_SetMemoryPointer(uint8_t x, uint8_t y){
  //   while(LCD_BUSY_PIN  == 1) ; //wait until busy line goes low, aka not busy
    while(P3IN == BIT6); //while pin 3.6 is high wait ehre. TODO
     //TODO: come back and change this to allow for HAL
+}
+
+/*
+ *  @name: epaper200x200_ClearFrameMemory
+ *  @brief: changes the frame memoery to be all black or all white remember its only 0x00 or 0xFF.
+      @parameter: input a color 0x00 or 0xFF; TODO come back and define which is which, black white.
+     @return: none
+ */
+void ePaper200x200_ClearFrameMemory(uint8_t color){
+    ePaper200x200_SetMemoryArea(0 , 0, LCD_VERTICAL_MAX - 1, LCD_HORIZONTAL_MAX - 1);
+    ePaper200x200_SetMemoryPointer(0,0);
+    HAL_LCD_writeCommand(CMD_WRITE_RAM);
+    //send in color: white or black
+    uint8_t pixel;
+//   for(pixel = 0; pixel < (LCD_HORIZONTAL_MAX/8) * LCD_VERTICAL_MAX; pixel++){
+    for(pixel = 0; pixel < 1; pixel++){
+    HAL_LCD_writeData(color);
+    }
+}
+
+/*
+ *  @name: ePaper200x200_DisplayFrame2
+ *  @brief: this will issue display command   2 (0x22) but will only use the init display, init clock (C0)
+ *  and then do To display pattern (0xC4)
+ *  @summary: this will show and update the display.
+ *  QUESTION: is this a partial update or full or only depends on the LUT table.
+ * */
+void ePaper200x200_DisplayFrame2(void){
+    HAL_LCD_writeCommand(CMD_DISPLAY_UPDATE_CTRL2);
+    HAL_LCD_writeData(CMD_DISP_UPDATE_SEQ1);
+    HAL_LCD_writeCommand(CMD_MASTER_ACTV);
+    while(P3IN == BIT6);
+    HAL_LCD_writeCommand(CMD_NOP);
+    //TODO: fix thiS TO HAL
+while(P3IN  == BIT6); //wait until not busy.
+}
+
+void ePaper200x200_Load_Image(uint8_t width, uint16_t height, uint8_t* image){
+uint8_t width_size = (width + 7) >> 3;
+uint16_t height_size = 0;
+uint16_t index = 0;
+while(P3IN == BIT6);
+
+HAL_LCD_writeCommand(CMD_WRITE_RAM);
+
+for(height_size = 0; height_size < height; height_size++ ){
+    for(width_size = 0; width_size < width; width_size++){
+        HAL_LCD_writeData(image);
+    }
+}
+
 
 }
+

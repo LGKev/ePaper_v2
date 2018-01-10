@@ -10,12 +10,31 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./Crystalfontz128x128_ST7735.obj" \
 "./HAL_MSP432P401R_ePaper200x200.obj" \
+"./aes256.obj" \
+"./comp_e.obj" \
+"./cpu.obj" \
+"./crc32.obj" \
+"./cs.obj" \
+"./dma.obj" \
 "./ePaper200x200_driver.obj" \
+"./flash.obj" \
+"./fpu.obj" \
+"./gpio.obj" \
+"./interrupt.obj" \
 "./main.obj" \
+"./mpu.obj" \
+"./pcm.obj" \
+"./pmap.obj" \
+"./pss.obj" \
+"./ref_a.obj" \
+"./reset.obj" \
+"./rtc_c.obj" \
+"./spi.obj" \
 "./startup_msp432p401r_ccs.obj" \
+"./sysctl.obj" \
 "./system_msp432p401r.obj" \
+"./wdt_a.obj" \
 "../msp432p401r.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -158,8 +177,8 @@ ePaper_200x200.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Crystalfontz128x128_ST7735.obj" "HAL_MSP432P401R_ePaper200x200.obj" "ePaper200x200_driver.obj" "main.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
-	-$(RM) "Crystalfontz128x128_ST7735.d" "HAL_MSP432P401R_ePaper200x200.d" "ePaper200x200_driver.d" "main.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
+	-$(RM) "HAL_MSP432P401R_ePaper200x200.obj" "aes256.obj" "comp_e.obj" "cpu.obj" "crc32.obj" "cs.obj" "dma.obj" "ePaper200x200_driver.obj" "flash.obj" "fpu.obj" "gpio.obj" "interrupt.obj" "main.obj" "mpu.obj" "pcm.obj" "pmap.obj" "pss.obj" "ref_a.obj" "reset.obj" "rtc_c.obj" "spi.obj" "startup_msp432p401r_ccs.obj" "sysctl.obj" "system_msp432p401r.obj" "wdt_a.obj" 
+	-$(RM) "HAL_MSP432P401R_ePaper200x200.d" "aes256.d" "comp_e.d" "cpu.d" "crc32.d" "cs.d" "dma.d" "ePaper200x200_driver.d" "flash.d" "fpu.d" "gpio.d" "interrupt.d" "main.d" "mpu.d" "pcm.d" "pmap.d" "pss.d" "ref_a.d" "reset.d" "rtc_c.d" "spi.d" "startup_msp432p401r_ccs.d" "sysctl.d" "system_msp432p401r.d" "wdt_a.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

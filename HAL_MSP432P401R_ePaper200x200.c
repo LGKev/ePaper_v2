@@ -28,10 +28,13 @@ void HAL_LCD_PortInit(void)
     GPIO_setAsOutputPin(LCD_CS_PORT, LCD_CS_PIN);
     //LCD_BUSY
     GPIO_setAsInputPinWithPullDownResistor(LCD_BUSY_PORT, LCD_BUSY_PIN);
+    //LCD_BS1_PIN
+    GPIO_setAsOutputPin(LCD_BS1_PORT, LCD_BS1_PIN);
 }
 
 void HAL_LCD_SpiInit(void)
 {
+#ifdef USE_LAUNCHPAD
     eUSCI_SPI_MasterConfig config =
         {
             EUSCI_B_SPI_CLOCKSOURCE_SMCLK,
@@ -42,10 +45,31 @@ void HAL_LCD_SpiInit(void)
             EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW,
             EUSCI_B_SPI_3PIN
         };
+
+#endif
+
+#ifdef USE_WATCH_V2
+    eUSCI_SPI_MasterConfig config =
+        {
+            EUSCI_B_SPI_CLOCKSOURCE_SMCLK,
+            LCD_SYSTEM_CLOCK_SPEED,
+            LCD_SPI_CLOCK_SPEED,
+            EUSCI_A_SPI_MSB_FIRST,
+            EUSCI_A_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT,
+            EUSCI_A_SPI_CLOCKPOLARITY_INACTIVITY_LOW,
+            EUSCI_A_SPI_3PIN
+        };
+
+#endif
+
     SPI_initMaster(LCD_EUSCI_BASE, &config);
     SPI_enableModule(LCD_EUSCI_BASE);
 
-    GPIO_setOutputLowOnPin(LCD_CS_PORT, LCD_CS_PIN);
+    //bs1 needs to be ground for 4 wire, and high for 3
+    GPIO_setOutputLowOnPin(LCD_BS1_PORT, LCD_BS1_PIN);
+
+    GPIO_setOutputLowOnPin(LCD_CS_PORT, LCD_CS_PIN); //always enabled, because there is only 1 screen.on the bus, so we can get away
+    //with always enabled display.
 
     GPIO_setOutputHighOnPin(LCD_DC_PORT, LCD_DC_PIN);
 }
@@ -59,6 +83,7 @@ void HAL_LCD_SpiInit(void)
 //*****************************************************************************
 void HAL_LCD_writeCommand(uint8_t command)
 {
+#ifdef USE_LAUNCHPAD
     // Set to command mode
     GPIO_setOutputLowOnPin(LCD_DC_PORT, LCD_DC_PIN);
 
@@ -70,6 +95,23 @@ void HAL_LCD_writeCommand(uint8_t command)
 
     // Set back to data mode
     GPIO_setOutputHighOnPin(LCD_DC_PORT, LCD_DC_PIN);
+#endif
+
+#ifdef USE_WATCH_V2
+    // Set to command mode
+    GPIO_setOutputLowOnPin(LCD_DC_PORT, LCD_DC_PIN);
+
+    // USCI_A2 Busy? //
+    while (UCA2STATW & UCBUSY);
+
+    // Transmit data
+    UCA2TXBUF = command;
+
+    // Set back to data mode
+    GPIO_setOutputHighOnPin(LCD_DC_PORT, LCD_DC_PIN);
+#endif
+
+
 }
 
 
@@ -81,11 +123,21 @@ void HAL_LCD_writeCommand(uint8_t command)
 //*****************************************************************************
 void HAL_LCD_writeData(uint8_t data)
 {
+#ifdef USE_LAUNCHPAD
     // USCI_B0 Busy? //
     while (UCB0STATW & UCBUSY);
 
     // Transmit data
     UCB0TXBUF = data;
+#endif
+
+#ifdef USE_WATCH_V2
+    // USCI_B0 Busy? //
+    while (UCA2STATW & UCBUSY);
+
+    // Transmit data
+    UCA2TXBUF = data;
+#endif
 }
 
 //*****************************************************************************

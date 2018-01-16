@@ -20,9 +20,14 @@
  *
  *  Notes: The initiation sequence is derived from the weaveshare's example code for arduino.
  *
- *
+ *      To change from LAUNCHPAD to WATCH_V2
+ *                   uncomment the define at the top of  HAL_MSP_EXP432P401R_ePaper200x200.h
+ *                      launchpad uses B0
+ *                      watch v2 uses A2
  *
  */
+
+
 
 uint8_t testImage[] = {0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF, 0xFF, 0XFF, 0XFF, 0XFF, 0XFF};
 
@@ -35,14 +40,20 @@ uint8_t count = 0;
 while(1){
 	ePaper200x200_ClearFrameMemory(WHITE);
 	ePaper200x200_DisplayFrame2();
-
+	P3OUT |=BIT2;
 	for(count = 0; count <200; count++);
 //	ePaper200x200_Load_Image(50, 50, testImage);
-    ePaper200x200_ClearFrameMemory(BLACK);
+    P3OUT &=~BIT2;
+
+	ePaper200x200_ClearFrameMemory(BLACK);
+
+
 
 	ePaper200x200_DisplayFrame2();
   //  for(count = 0; count < 2000; count++);
 
 }
+
+
 
 }

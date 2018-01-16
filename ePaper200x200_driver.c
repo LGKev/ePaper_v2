@@ -113,6 +113,13 @@ uint16_t Lcd_ScreenWidth, Lcd_ScreenHeigth;
      GPIO_setOutputHighOnPin(LCD_RST_PORT, LCD_RST_PIN);
      HAL_LCD_delay(120);
 
+     //:TODO check that this is a valid command what about
+     //CS?! because we only have 1 display the chip select is always set low. aka always enabled.
+     // the ti library does the same thing.
+     // so the way i got the SPI to decode on the logica anlyzer was probably using the D/C
+
+     GPIO_setOutputLowOnPin(LCD_CS_PORT, LCD_CS_PIN);
+
      HAL_LCD_writeCommand(CMD_DRIVER_OUTPUT_CONTROL);
      HAL_LCD_writeData((Lcd_ScreenWidth - 1 ) & 0xFF);
      HAL_LCD_writeData((Lcd_ScreenHeigth - 1 ) & 0xFF);
@@ -157,6 +164,9 @@ uint16_t Lcd_ScreenWidth, Lcd_ScreenHeigth;
          }
      }
      //end of screen init
+
+     GPIO_setOutputHighOnPin(LCD_CS_PORT, LCD_CS_PIN);
+
  }
 
  /*
